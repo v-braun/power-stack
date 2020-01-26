@@ -74,5 +74,5 @@ output "vm_name" {
 }
 
 output "vm_user_name" {
-  value = ar.auth.username
+  value = var.auth.username
 }
