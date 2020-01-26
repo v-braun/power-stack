@@ -1,0 +1,39 @@
+#!/bin/sh
+
+VM_USER="${usr}"
+
+echo "running apt-get update"
+echo "-- BEGIN --"
+apt-get update
+echo "-- DONE --"
+
+echo "running apt-get upgrade"
+echo "-- BEGIN --"
+apt-get upgrade -y
+echo "-- DONE --"
+
+echo "install docker"
+echo "-- BEGIN --"
+apt-get install -y docker.io
+echo "-- DONE --"
+
+echo "add user $VM_USER to docker group"
+echo "-- BEGIN --"
+gpasswd -a $VM_USER docker
+echo "-- DONE --"
+
+echo "setup container prune cron at 3 AM"
+echo "-- BEGIN --"
+(crontab -l 2>/dev/null; echo "0 3 * * * docker container prune --force") | crontab -
+echo "-- DONE --"
+
+echo "setup image prune cron  at 3:05 AM"
+echo "-- BEGIN --"
+(crontab -l 2>/dev/null; echo "5 3 * * * docker image prune --all --force") | crontab -
+echo "-- DONE --"
+
+echo "setup image prune cron  at 4:00 AM on every 1th day every month"
+echo "-- BEGIN --"
+(crontab -l 2>/dev/null; echo "00 4 1 * * apt-get update && apt-get upgrade -y && apt-get autoclean") | crontab -
+echo "-- DONE --"
+

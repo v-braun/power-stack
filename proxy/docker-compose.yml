@@ -1,0 +1,50 @@
+version: '3.5'
+
+networks:
+  main-net:
+    external: true
+
+volumes:
+  letsencrypt_data:
+
+services:
+  proxy:
+    image: traefik:2.1
+    container_name: "proxy"
+    command: 
+      - "--log.level=WARN"
+      - "--api.insecure=true"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.letsencrypt.acme.email=mail@viktor-braun.de"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    networks:
+      - main-net
+    ports:
+      - 80:80
+      - 443:443
+    labels: 
+      - "traefik.enable=true"
+      - "traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)"
+      - "traefik.http.routers.http_catchall.entrypoints=http"
+      - "traefik.http.routers.http_catchall.middlewares=https_redirect"
+      - "traefik.http.middlewares.https_redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https_redirect.redirectscheme.permanent=true"
+      - "traefik.http.services.proxy.loadbalancer.server.port=8080"
+      - "traefik.http.routers.proxy.rule=Host(`proxy.stabel.io`)"
+      - "traefik.http.routers.proxy.entrypoints=https"
+      - "traefik.http.routers.proxy.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.proxy.tls=true"
+      - "traefik.http.routers.proxy.service=proxy"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock" 
+      - "letsencrypt_data:/letsencrypt"
+    restart: always
+    logging:
+      driver: json-file
+      options: 
+        max-size: 10m
