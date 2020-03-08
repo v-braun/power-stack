@@ -17,6 +17,23 @@ jobs:
           RSA_PUB_KEY: ${{ secrets.RSA_PUB_KEY }}      
         run: echo $RSA_PUB_KEY > ./infrastructure/id_rsa.pub
 
+      - name: generate tf backend file
+        env: 
+          STORAGE_ACC_NAME: ${{ secrets.TF_STATE_STORAGE_ACC_NAME }}
+          CONTAINER_NAME: tfstates
+          KEY: prod.terraform.tfstate
+          
+        run: |
+          cat > ./infrastructure/backend.tf <<EOF
+          terraform {
+            backend "azurerm" {
+              storage_account_name  = "$STORAGE_ACC_NAME"
+              container_name        = "$CONTAINER_NAME"
+              key                   = "$KEY"
+            }
+          }
+          EOF
+
       - name: 'init terraform'
         uses: hashicorp/terraform-github-actions@master
         with:
@@ -48,8 +65,9 @@ jobs:
           TF_VAR_name: ${{ secrets.APP_NAME }}
           TF_VAR_rsync_port: ${{ secrets.RSYNC_PORT }}      
           TF_VAR_pubkey_file: ./id_rsa.pub
+          ARM_ACCESS_KEY: ${{ secrets.TF_STATE_ACCESS_KEY }}
         with:
           tf_actions_version: 0.12.13
-          tf_actions_subcommand: 'plan'
+          tf_actions_subcommand: 'apply'
           tf_actions_working_dir: ./infrastructure
 
