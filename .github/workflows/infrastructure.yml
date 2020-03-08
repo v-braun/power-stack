@@ -11,7 +11,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: azure/CLI@v1
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: generate public key file
         env: 
