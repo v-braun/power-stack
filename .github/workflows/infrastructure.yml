@@ -42,14 +42,14 @@ jobs:
         env:
           ARM_ACCESS_KEY: ${{ secrets.TF_STATE_ACCESS_KEY }}
         with:
-          tf_actions_version: 0.12.13
+          tf_actions_version: 0.12.20
           tf_actions_subcommand: 'init'
           tf_actions_working_dir: ./infrastructure
 
       - name: validate infrastructure
         uses: hashicorp/terraform-github-actions@master
         with:
-          tf_actions_version: 0.12.13
+          tf_actions_version: 0.12.20
           tf_actions_subcommand: 'validate'
           tf_actions_working_dir: ./infrastructure
 
@@ -72,7 +72,7 @@ jobs:
           TF_VAR_pubkey_file: ./id_rsa.pub
           ARM_ACCESS_KEY: ${{ secrets.TF_STATE_ACCESS_KEY }}
         with:
-          tf_actions_version: 0.12.13
+          tf_actions_version: 0.12.20
           tf_actions_subcommand: 'apply'
           tf_actions_working_dir: ./infrastructure
 
