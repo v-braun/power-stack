@@ -11,7 +11,6 @@ resource "azurerm_network_interface" "ni" {
     name                         = "${var.name}-ni"
     location                     = var.destination.location
     resource_group_name          = var.destination.resource_group_name
-    network_security_group_id    = var.destination.nsg_id
 
     ip_configuration {
         name                          = "${var.name}-ni-config"
