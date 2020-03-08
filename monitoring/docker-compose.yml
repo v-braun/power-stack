@@ -39,6 +39,7 @@ services:
   influxdb:
     build:
       context: ./influxdb    
+    restart: always
     environment:
       - INFLUXDB_DB=${INFLUXDB_NAME}
       - INFLUXDB_ADMIN_USER=${INFLUXDB_USER_NAME}
@@ -57,11 +58,43 @@ services:
       options: 
         max-size: 2m
 
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    # ports:
+      # - "8888:8080"
+    networks:
+      - main-net
+    logging:
+      driver: json-file
+      options: 
+        max-size: 10m
+    labels: 
+      - "traefik.enable=true"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+      - "traefik.http.routers.dozzle.middlewares=simple_auth" # with basic auth
+      - "traefik.http.routers.dozzle.rule=Host(`${DOZZLE_WEB_DOMAIN}`)"
+      - "traefik.http.routers.dozzle.entrypoints=https"
+      - "traefik.http.routers.dozzle.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dozzle.tls=true"
+      - "traefik.http.routers.dozzle.service=dozzle"
+
   grafana:
     build:
       context: ./grafana
+    restart: always
+    networks:
+      - main-net
+    links:
+      - influxdb    
     depends_on:
       - influxdb
+    logging:
+      driver: json-file
+      options: 
+        max-size: 5m    
     environment:
       - INFLUXDB_NAME=${INFLUXDB_NAME}
       - INFLUXDB_USER_NAME=${INFLUXDB_USER_NAME}
@@ -69,16 +102,12 @@ services:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER_NAME}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_USER_PWD}
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-worldmap-panel,grafana-piechart-panel
-    networks:
-      - main-net
-    links:
-      - influxdb
     # ports:
     #   - 3000:3000
     labels: 
       - "traefik.enable=true"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.stabel.io`)"
+      - "traefik.http.routers.grafana.rule=Host(`${GRAFANA_WEB_DOMAIN}`)"
       - "traefik.http.routers.grafana.entrypoints=https"
       - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
       - "traefik.http.routers.grafana.tls=true"
@@ -87,7 +116,3 @@ services:
       # - grafana_data:/var/lib/grafana
       # - ./grafana/provisioning/:/etc/grafana/provisioning/
       # - ./grafana/dashboards/:/var/lib/grafana/dashboards/
-    logging:
-      driver: json-file
-      options: 
-        max-size: 5m    

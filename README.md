@@ -1,3 +1,16 @@
+# Power Stack
+
+This repository is the home of my Cloud Stack. 
+My personal website and all the cloud based tools that I use in my daily job.
+
+## Overview
+
+All the Tools are installed on a Ubuntu VM as Docker Containers.  
+I use Terraform to deploy the VM (and all the other Infrastructure resources) into an Azure Subscription and Docker Compose to run the services.
+
+A Traefik Proxy (configured automatically thanks the [Docker Config Discoovery](https://docs.traefik.io/providers/docker/)) is used asa reverse proxy. 
+TODO: continue doc
+
 
 ### Deploy the Infrastructure
 
@@ -59,6 +72,10 @@ Switch back to your local Docker
 ``` sh
 eval "$(docker-machine env -u)"
 ```
+
+### Configure DNS
+Configure now your DNS to point to the new created VM
+
 
 ### Next steps
 Follow the next steps here:

@@ -3,6 +3,7 @@ resource "azurerm_public_ip" "ip" {
     location                     = var.destination.location
     resource_group_name          = var.destination.resource_group_name
     allocation_method            = "Static"
+    domain_name_label            = var.name
     tags = var.tags
 }
 

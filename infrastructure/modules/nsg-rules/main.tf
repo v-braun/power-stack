@@ -5,6 +5,10 @@ variable "destination" {
   })
 }
 
+variable "rsync_port" {
+  type = string
+}
+
 resource "azurerm_network_security_rule" "rule_ssh" {
   name                        = "SSH"
   priority                    = 1001
@@ -55,6 +59,20 @@ resource "azurerm_network_security_rule" "rule_docker_manage" {
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "2376"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  network_security_group_name = var.destination.nsg_name
+  resource_group_name         = var.destination.resource_group_name
+}
+
+resource "azurerm_network_security_rule" "rule_rsync_backup" {
+  name                        = "rsync-backup"
+  priority                    = 1005
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = var.rsync_port
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
   network_security_group_name = var.destination.nsg_name

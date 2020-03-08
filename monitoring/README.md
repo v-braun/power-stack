@@ -15,6 +15,10 @@ INFLUXDB_USER_PWD=admin user password
 
 GRAFANA_USER_NAME=grafana default user name
 GRAFANA_USER_PWD=grafana default user password
+
+GRAFANA_WEB_DOMAIN=grafana web ui url
+
+DOZZLE_WEB_DOMAIN=dozzle web ui url
 ```
 
 Run the stack with ```docker-compose```  

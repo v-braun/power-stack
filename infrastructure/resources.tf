@@ -64,6 +64,8 @@ module "default_rules" {
     resource_group_name = azurerm_resource_group.rg.name
     nsg_name            = module.network.nsg.name
   }
+
+  rsync_port = var.rsync_port
 }
 
 output "master_vm_name" {

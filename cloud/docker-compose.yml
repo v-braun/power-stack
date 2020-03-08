@@ -1,0 +1,75 @@
+version: '3.5'
+
+networks:
+  main-net:
+    external: true
+
+volumes:
+  data:
+    name: cloud_data
+  db_data:
+    name: cloud_db_data
+  redis_data:
+
+
+services:
+  owncloud:
+    image: owncloud/server:${OWNCLOUD_VERSION}
+    restart: always
+    networks:
+      - main-net
+    volumes:
+      - data:/mnt/data
+    links:
+      - db:db
+      - redis:redis
+    environment:
+      - "OWNCLOUD_DOMAIN=${OWNCLOUD_DOMAIN}"
+      - "OWNCLOUD_DB_TYPE=mysql"
+      - "OWNCLOUD_DB_NAME=${OWNCLOUD_DB_NAME}"
+      - "OWNCLOUD_DB_USERNAME=${OWNCLOUD_DB_USERNAME}"
+      - "OWNCLOUD_DB_PASSWORD=${OWNCLOUD_DB_PASSWORD}"
+      - "OWNCLOUD_DB_HOST=db"
+      - "OWNCLOUD_ADMIN_USERNAME=${OWNCLOUD_ADMIN_USERNAME}"
+      - "OWNCLOUD_ADMIN_PASSWORD=${OWNCLOUD_ADMIN_PASSWORD}"
+      - "OWNCLOUD_MYSQL_UTF8MB4=true"
+      - "OWNCLOUD_REDIS_ENABLED=true"
+      - "OWNCLOUD_REDIS_HOST=redis"
+    labels: 
+      - "traefik.enable=true"
+      - "traefik.http.services.cloud.loadbalancer.server.port=8080"
+      - "traefik.http.routers.cloud.rule=Host(`${OWNCLOUD_DOMAIN}`)"
+      - "traefik.http.routers.cloud.entrypoints=https"
+      - "traefik.http.routers.cloud.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.cloud.tls=true"
+      - "traefik.http.routers.cloud.service=cloud"
+
+  db:
+    image: mysql:8.0
+    restart: always
+    command: [
+      '--character-set-server=utf8mb4', 
+      '--collation-server=utf8mb4_unicode_ci',
+      '--default-authentication-plugin=mysql_native_password'
+    ]
+    networks:
+      - main-net
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      - "MYSQL_ROOT_PASSWORD=${OWNCLOUD_DB_ROOT_PWD}"
+      - "MYSQL_USER=${OWNCLOUD_DB_USERNAME}"
+      - "MYSQL_PASSWORD=${OWNCLOUD_DB_PASSWORD}"
+      - "MYSQL_DATABASE=${OWNCLOUD_DB_NAME}"
+      - "MYSQL_MAX_ALLOWED_PACKET=128M"
+      - "MYSQL_INNODB_LOG_FILE_SIZE=64M"
+
+  redis:
+    image: redis:5.0
+    restart: always
+    networks:
+      - main-net
+    environment:
+      - REDIS_DATABASES=1
+    volumes:
+      - redis_data:/var/lib/redis

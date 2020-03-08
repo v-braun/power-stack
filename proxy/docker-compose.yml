@@ -19,7 +19,7 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory" # activates staging env for tests
       - "--certificatesresolvers.letsencrypt.acme.email=mail@viktor-braun.de"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
     networks:
@@ -29,17 +29,24 @@ services:
       - 443:443
     labels: 
       - "traefik.enable=true"
+      # auth
+      - "traefik.http.middlewares.simple_auth.basicauth.users=${BASIC_AUTH_USR}:${BASIC_AUTH_PWD}"
+      # redirect 2 HTTPS
+      - "traefik.http.middlewares.https_redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https_redirect.redirectscheme.permanent=true"      
       - "traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)"
       - "traefik.http.routers.http_catchall.entrypoints=http"
       - "traefik.http.routers.http_catchall.middlewares=https_redirect"
-      - "traefik.http.middlewares.https_redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.https_redirect.redirectscheme.permanent=true"
-      - "traefik.http.services.proxy.loadbalancer.server.port=8080"
-      - "traefik.http.routers.proxy.rule=Host(`proxy.stabel.io`)"
+      # traefik web frontend 
+      - "traefik.http.routers.proxy.middlewares=simple_auth" # with basic auth
+      - "traefik.http.routers.proxy.rule=Host(`${PROXY_DASHBOARD_UI_DOMAIN}`)"
       - "traefik.http.routers.proxy.entrypoints=https"
       - "traefik.http.routers.proxy.tls.certresolver=letsencrypt"
       - "traefik.http.routers.proxy.tls=true"
+
+      - "traefik.http.services.proxy.loadbalancer.server.port=8080"
       - "traefik.http.routers.proxy.service=proxy"
+
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock" 
       - "letsencrypt_data:/letsencrypt"

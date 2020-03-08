@@ -1,0 +1,33 @@
+version: '3.5'
+
+networks:
+  main-net:
+    external: true
+
+volumes:
+  cloud_data:
+    external: true
+  cloud_db_data:
+    external: true
+
+services:
+  rsync:
+    image: axiom/rsync-server
+    networks:
+      - main-net
+    ports:
+      - ${RSYNC_PORT}:873
+    labels: 
+      - "traefik.enable=false"
+    volumes:
+      - "cloud_data:/data/owncloud_data:ro"
+      - "cloud_db_data:/data/owncloud_db:ro"
+    environment:
+      - USERNAME=${RSYNC_USR}
+      - PASSWORD=${RSYNC_PWD}
+      - ALLOW=${RSYNC_ALLOW_IP}
+    restart: always
+    logging:
+      driver: json-file
+      options: 
+        max-size: 10m

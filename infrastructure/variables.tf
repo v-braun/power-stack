@@ -40,6 +40,12 @@ variable "pubkey_file" {
   default = "~/.ssh/id_rsa.pub"
 }
 
+variable "rsync_port" {
+  type = string
+  description = "Enter the port used for rsync backups"
+}
+
+
 variable "environment" {
   type = string
   description = "Enter the ENV, it will be assigned as a TAG to all the resources"
