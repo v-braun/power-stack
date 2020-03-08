@@ -1,15 +1,12 @@
 name: deploy infrastructure
 
-
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+# this actions will be triggered via [actionspanel](https://www.actionspanel.app/)
+on: repository_dispatch
 
 jobs:
 
   apply:
+    if: github.event.action == 'deploy_infrastructure'
     runs-on: ubuntu-18.04
 
     steps:
