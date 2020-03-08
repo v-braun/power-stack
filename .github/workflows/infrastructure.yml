@@ -9,8 +9,6 @@ on:
 
 jobs:
 
-
-  
   apply:
     runs-on: ubuntu-18.04
 
@@ -22,17 +20,20 @@ jobs:
 
       - name: 'init terraform'
         uses: hashicorp/terraform-github-actions@master
+        working-directory: ./infrastructure
         with:
           tf_actions_version: 0.12.13
           tf_actions_subcommand: 'init'
 
       - name: validate infrastructure
         uses: hashicorp/terraform-github-actions@master
+        working-directory: ./infrastructure
         with:
           tf_actions_version: 0.12.13
           tf_actions_subcommand: 'validate'
 
       - name: show dir
+        working-directory: ./infrastructure
         run: ls
 
   # TODO
@@ -40,6 +41,7 @@ jobs:
   # create a plan step later and implement an approval for the apply step
   # when approvals are possible          
       - name: apply infrastructure
+        working-directory: ./infrastructure
         env: 
           TF_VAR_subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
           TF_VAR_client_id: ${{ secrets.CLIENT_ID }}
