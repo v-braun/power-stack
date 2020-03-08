@@ -11,17 +11,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # - name: Azure Login
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: generate public key file
+        if: success()
         env: 
           RSA_PUB_KEY: ${{ secrets.RSA_PUB_KEY }}      
         run: echo $RSA_PUB_KEY > ./infrastructure/id_rsa.pub
 
       - name: generate tf backend file
+        if: success()
         env: 
           STORAGE_ACC_NAME: ${{ secrets.TF_STATE_STORAGE_ACC_NAME }}
           CONTAINER_NAME: tfstates
@@ -39,6 +41,7 @@ jobs:
 
       - name: 'init terraform'
         uses: hashicorp/terraform-github-actions@master
+        if: success()
         env:
           ARM_ACCESS_KEY: ${{ secrets.TF_STATE_ACCESS_KEY }}
         with:
@@ -60,6 +63,7 @@ jobs:
   # when approvals are possible          
       - name: apply infrastructure
         uses: hashicorp/terraform-github-actions@master
+        if: success()
         env: 
           TF_VAR_subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
           TF_VAR_client_id: ${{ secrets.CLIENT_ID }}
