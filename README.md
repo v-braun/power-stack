@@ -15,7 +15,7 @@ TODO: continue doc
 ### Deploy the Infrastructure
 
 Use the action panel:  
-[![Actions Panel](https://img.shields.io/badge/deploy-infrastructure-brightorange)](https://www.actionspanel.app/app/v-braun/power-stack)
+[![Actions Panel](https://img.shields.io/badge/deploy-infrastructure-blue)](https://www.actionspanel.app/app/v-braun/power-stack)
 
 Go into the infrastructure folder 
 ``` sh
