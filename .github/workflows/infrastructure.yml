@@ -1,0 +1,47 @@
+name: deploy infrastructure
+
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+
+  
+  apply:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: go to the infrastructure dir
+        run: cd infrastructure
+
+      - name: validate infrastructure
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.13
+          tf_actions_subcommand: 'validate'
+
+  # TODO
+  # github actions don't support a manual approval
+  # create a plan step later and implement an approval for the apply step
+  # when approvals are possible          
+      - name: apply infrastructure
+        env: 
+          TF_VAR_subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+          TF_VAR_client_id: ${{ secrets.CLIENT_ID }}
+          TF_VAR_client_secret: ${{ secrets.CLIENT_SECRET }}
+          TF_VAR_tenant_id: ${{ secrets.TENANT_ID }}
+          TF_VAR_username: ${{ secrets.VM_USERNAME }}
+          TF_VAR_environment: prod
+          TF_VAR_name: ${{ secrets.APP_NAME }}
+          TF_VAR_rsync_port: ${{ secrets.RSYNC_PORT }}      
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.13
+          tf_actions_subcommand: 'plan'
+
