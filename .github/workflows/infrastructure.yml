@@ -20,11 +20,20 @@ jobs:
       - name: go to the infrastructure dir
         run: cd infrastructure
 
+      - name: 'init terraform'
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.13
+          tf_actions_subcommand: 'init'
+
       - name: validate infrastructure
         uses: hashicorp/terraform-github-actions@master
         with:
           tf_actions_version: 0.12.13
           tf_actions_subcommand: 'validate'
+
+      - name: show dir
+        run: ls
 
   # TODO
   # github actions don't support a manual approval
