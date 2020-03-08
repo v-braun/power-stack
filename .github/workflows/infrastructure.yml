@@ -11,6 +11,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: azure/CLI@v1
 
       - name: generate public key file
         env: 
