@@ -50,7 +50,7 @@ jobs:
           TF_VAR_environment: prod
           TF_VAR_name: ${{ secrets.APP_NAME }}
           TF_VAR_rsync_port: ${{ secrets.RSYNC_PORT }}      
-          TF_VAR_pubkey_file: ./infrastructure/id_rsa.pub
+          TF_VAR_pubkey_file: ./id_rsa.pub
         with:
           tf_actions_version: 0.12.13
           tf_actions_subcommand: 'plan'
