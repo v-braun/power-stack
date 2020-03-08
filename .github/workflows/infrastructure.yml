@@ -26,7 +26,6 @@ jobs:
           STORAGE_ACC_NAME: ${{ secrets.TF_STATE_STORAGE_ACC_NAME }}
           CONTAINER_NAME: tfstates
           KEY: prod.terraform.tfstate
-          
         run: |
           cat > ./infrastructure/backend.tf <<EOF
           terraform {
@@ -40,6 +39,8 @@ jobs:
 
       - name: 'init terraform'
         uses: hashicorp/terraform-github-actions@master
+        env:
+          ARM_ACCESS_KEY: ${{ secrets.TF_STATE_ACCESS_KEY }}
         with:
           tf_actions_version: 0.12.13
           tf_actions_subcommand: 'init'
