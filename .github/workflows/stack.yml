@@ -19,12 +19,14 @@ jobs:
       - name: generate private key file
         if: success()
         env: 
-          RSA_PRIV_KEY: ${{ secrets.RSA_PRIV_KEY }}      
+          RSA_PRIV_KEY: ${{ secrets.RSA_PRIV_KEY }}
+          STACK_NAME: ${{ secrets.APP_NAME }}    
         run: |
           mkdir -p ~/.ssh/
           eval $(ssh-agent -s)
           ssh-keygen -R $STACK_NAME-master.westeurope.cloudapp.azure.com || true
           ssh-add <(echo "$RSA_PRIV_KEY" | base64 --decode)
+          ssh-keyscan -H $STACK_NAME-master.westeurope.cloudapp.azure.com >> ~/.ssh/known_hosts
 
       - name: create docker context
         if: success()
