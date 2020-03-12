@@ -23,10 +23,8 @@ jobs:
           RSA_PRIV_KEY_PWD: ${{ secrets.RSA_PRIV_KEY_PWD }}      
         run: |
           mkdir -p ~/.ssh/
-          echo $RSA_PRIV_KEY > ~/.ssh/id_rsa
-          chmod 400 ~/.ssh/id_rsa
-          eval `ssh-agent -s`
-          ssh-add ~/.ssh/id_rsa
+          eval $(ssh-agent -s)
+          ssh-add <(echo "$RSA_PRIV_KEY")
 
       - name: create docker context
         if: success()
