@@ -20,15 +20,17 @@ jobs:
         if: success()
         env: 
           RSA_PRIV_KEY: ${{ secrets.RSA_PRIV_KEY }}
+          RSA_PRIV_KEY_PWD: ${{ secrets.RSA_PRIV_KEY_PWD }}
           STACK_NAME: ${{ secrets.APP_NAME }}    
         run: |
           mkdir -p ~/.ssh/ && chmod 700 ~/.ssh
           echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
           chmod 600 ~/.ssh/config
+          echo "$RSA_PRIV_KEY" | base64 --decode > ~/.ssh/id_rsa
           eval $(ssh-agent -s)
           ssh-keygen -R $STACK_NAME-master.westeurope.cloudapp.azure.com || true
-          ssh-add <(echo "$RSA_PRIV_KEY")
           ssh-keyscan -H $STACK_NAME-master.westeurope.cloudapp.azure.com >> ~/.ssh/known_hosts
+          cat $RSA_PRIV_KEY_PWD | ssh-add -p ~/.ssh/
 
       - name: create docker context
         if: success()
