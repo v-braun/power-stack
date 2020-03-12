@@ -2,3 +2,6 @@ buttons:
   - title: Deploy Infrastructure
     action: "deploy_infrastructure"
     description: Deploy the power-stack Infrastructure
+  - title: Deploy Stack
+    action: "deploy_stack"
+    description: Deploy the power-stack

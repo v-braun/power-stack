@@ -1,0 +1,52 @@
+name: deploy the stack services
+
+# this actions will be triggered via [actionspanel](https://www.actionspanel.app/)
+on: repository_dispatch
+
+jobs:
+
+  apply:
+    if: github.event.action == 'deploy_stack'
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+      # - name: Azure Login
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: generate private key file
+        if: success()
+        env: 
+          RSA_PRIV_KEY: ${{ secrets.RSA_PUB_KEY }}      
+          RSA_PRIV_KEY_PWD: ${{ secrets.RSA_PRIV_KEY_PWD }}      
+        run: echo $RSA_PRIV_KEY > ~/.ssh/id_rsa
+
+      - name: create docker context
+        if: success()
+        env: 
+          RSA_PRIV_KEY: ${{ secrets.RSA_PUB_KEY }}      
+          RSA_PRIV_KEY_PWD: ${{ secrets.RSA_PRIV_KEY_PWD }}   
+          STACK_NAME: ${{ secrets.APP_NAME }}   
+          VM_USERNAME: ${{ secrets.VM_USERNAME }}
+        run: |
+          docker context create power-stack \
+              --docker "host=ssh://$VM_USERNAME@$STACK_NAME.westeurope.cloudapp.azure.com"
+          
+
+      - name: deploy monitoring
+        if: success()
+        env: 
+          INFLUXDB_NAME: ${{ secrets.INFLUXDB_NAME }}
+          INFLUXDB_USER_NAME: ${{ secrets.INFLUXDB_USER_NAME }}
+          INFLUXDB_USER_PWD: ${{ secrets.INFLUXDB_USER_PWD }}
+          GRAFANA_USER_NAME: ${{ secrets.GRAFANA_USER_NAME }}
+          GRAFANA_USER_PWD: ${{ secrets.GRAFANA_USER_PWD }}
+          GRAFANA_WEB_DOMAIN: ${{ secrets.GRAFANA_WEB_DOMAIN }}
+          CHRONOGRAF_WEB_DOMAIN: ${{ secrets.CHRONOGRAF_WEB_DOMAIN }}
+          DOZZLE_WEB_DOMAIN: ${{ secrets.DOZZLE_WEB_DOMAIN }}
+        run: |
+          cd ./monitoring
+          docker context use power-stack
+          docker-compose up -d --build 
