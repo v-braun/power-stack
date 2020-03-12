@@ -31,9 +31,9 @@ jobs:
           STACK_NAME: ${{ secrets.APP_NAME }}   
           VM_USERNAME: ${{ secrets.VM_USERNAME }}
         run: |
-          echo "$VM_USERNAME@$STACK_NAME-master.westeurope.cloudapp.azure.com" | base64
+          
           docker context create power-stack \
-              --docker "host=ssh://$VM_USERNAME@$STACK_NAME-master.westeurope.cloudapp.azure.com"
+              --docker "host=ssh://vbr@power-stack-master.westeurope.cloudapp.azure.com"
           
       - name: deploy proxy
         if: success()
