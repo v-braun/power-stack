@@ -23,6 +23,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh/
           eval $(ssh-agent -s)
+          ssh-keygen -R $STACK_NAME-master.westeurope.cloudapp.azure.com || true
           ssh-add <(echo "$RSA_PRIV_KEY" | base64 --decode)
 
       - name: create docker context
@@ -31,9 +32,8 @@ jobs:
           STACK_NAME: ${{ secrets.APP_NAME }}   
           VM_USERNAME: ${{ secrets.VM_USERNAME }}
         run: |
-          
           docker context create power-stack \
-              --docker "host=ssh://vbr@power-stack-master.westeurope.cloudapp.azure.com"
+              --docker "host=ssh://$VM_USERNAME@$STACK_NAME-master.westeurope.cloudapp.azure.com"
           
       - name: deploy proxy
         if: success()
