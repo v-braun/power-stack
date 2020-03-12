@@ -2,7 +2,6 @@ name: deploy the stack services
 
 # this actions will be triggered via [actionspanel](https://www.actionspanel.app/)
 on: repository_dispatch
-if: github.event.action == 'deploy_stack'
 
 jobs:
 
