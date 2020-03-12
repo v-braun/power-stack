@@ -34,6 +34,17 @@ jobs:
           docker context create power-stack \
               --docker "host=ssh://$VM_USERNAME@$STACK_NAME.westeurope.cloudapp.azure.com"
           
+      - name: deploy proxy
+        if: success()
+        env: 
+          PROXY_DASHBOARD_UI_DOMAIN: ${{ secrets.PROXY_DASHBOARD_UI_DOMAIN }}
+          BASIC_AUTH_USR: ${{ secrets.BASIC_AUTH_USR }}
+          BASIC_AUTH_PWD: ${{ secrets.BASIC_AUTH_PWD }}
+        run: |
+          cd ./proxy
+          docker context use power-stack
+          docker network ls|grep main-net > /dev/null || docker network create -d overlay --attachable main-net
+          docker-compose up -d --build 
 
       - name: deploy monitoring
         if: success()
