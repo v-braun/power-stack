@@ -27,7 +27,7 @@ jobs:
           chmod 600 ~/.ssh/config
           eval $(ssh-agent -s)
           ssh-keygen -R $STACK_NAME-master.westeurope.cloudapp.azure.com || true
-          ssh-add <(echo "$RSA_PRIV_KEY" | base64 --decode)
+          ssh-add <(echo "$RSA_PRIV_KEY")
           ssh-keyscan -H $STACK_NAME-master.westeurope.cloudapp.azure.com >> ~/.ssh/known_hosts
 
       - name: create docker context
