@@ -27,7 +27,7 @@ jobs:
           echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
           chmod 600 ~/.ssh/config
           echo "$RSA_PRIV_KEY" | base64 --decode > ~/.ssh/id_rsa
-          chmod 644 ~/.ssh/config
+          chmod 400 ~/.ssh/config
 
           eval $(ssh-agent -s)
           ssh-keygen -R $STACK_NAME-master.westeurope.cloudapp.azure.com || true
