@@ -2,6 +2,7 @@ name: deploy the stack services
 
 # this actions will be triggered via [actionspanel](https://www.actionspanel.app/)
 on: repository_dispatch
+if: github.event.action == 'deploy_stack'
 
 jobs:
 
@@ -24,8 +25,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh/
           echo $RSA_PRIV_KEY > ~/.ssh/id_rsa
-          echo 'echo $RSA_PRIV_KEY_PWD' > ~/.priv_key_pwd && chmod 700 ~/.priv_key_pwd
-          cat ~/.priv_key_pwd
+          echo "echo $RSA_PRIV_KEY_PWD" > ~/.priv_key_pwd && chmod 700 ~/.priv_key_pwd
           eval `ssh-agent -s`
           cat ~/.ssh/id_rsa | SSH_ASKPASS=~/.priv_key_pwd ssh-add -
 
