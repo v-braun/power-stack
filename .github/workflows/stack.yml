@@ -19,16 +19,15 @@ jobs:
       - name: generate private key file
         if: success()
         env: 
-          RSA_PRIV_KEY: ${{ secrets.RSA_PUB_KEY }}      
+          RSA_PRIV_KEY: ${{ secrets.RSA_PRIV_KEY }}      
         run: |
           mkdir -p ~/.ssh/
           eval $(ssh-agent -s)
-          ssh-add <(echo "$RSA_PRIV_KEY")
+          ssh-add <(echo "$RSA_PRIV_KEY" | base64 --decode)
 
       - name: create docker context
         if: success()
         env: 
-          RSA_PRIV_KEY: ${{ secrets.RSA_PUB_KEY }}      
           STACK_NAME: ${{ secrets.APP_NAME }}   
           VM_USERNAME: ${{ secrets.VM_USERNAME }}
         run: |
