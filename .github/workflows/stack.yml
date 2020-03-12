@@ -21,7 +21,11 @@ jobs:
         env: 
           RSA_PRIV_KEY: ${{ secrets.RSA_PUB_KEY }}      
           RSA_PRIV_KEY_PWD: ${{ secrets.RSA_PRIV_KEY_PWD }}      
-        run: echo $RSA_PRIV_KEY > ~/.ssh/id_rsa
+        run: |
+          mkdir -p ~/.ssh/
+          echo $RSA_PRIV_KEY > ~/.ssh/id_rsa
+          echo 'echo $RSA_PRIV_KEY_PWD' > ~/.priv_key_pwd && chmod 700 ~/.priv_key_pwd
+          cat ~/.ssh/id_rsa | SSH_ASKPASS=~/.priv_key_pwd ssh-add -
 
       - name: create docker context
         if: success()
