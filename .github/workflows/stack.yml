@@ -25,6 +25,7 @@ jobs:
           mkdir -p ~/.ssh/
           echo $RSA_PRIV_KEY > ~/.ssh/id_rsa
           echo $RSA_PRIV_KEY_PWD > ~/.ssh/id_rsa.pwd
+          chmod 400 ~/.ssh/id_rsa
           eval `ssh-agent -s`
           cat ~/.ssh/id_rsa.pwd | ssh-add ~/.ssh/id_rsa
 
