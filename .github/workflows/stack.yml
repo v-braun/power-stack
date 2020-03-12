@@ -30,7 +30,7 @@ jobs:
           eval $(ssh-agent -s)
           ssh-keygen -R $STACK_NAME-master.westeurope.cloudapp.azure.com || true
           ssh-keyscan -H $STACK_NAME-master.westeurope.cloudapp.azure.com >> ~/.ssh/known_hosts
-          echo $RSA_PRIV_KEY_PWD | ssh-add -p ~/.ssh/
+          echo $RSA_PRIV_KEY_PWD | ssh-add ~/.ssh/id_rsa
 
       - name: create docker context
         if: success()
