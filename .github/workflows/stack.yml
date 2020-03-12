@@ -22,7 +22,9 @@ jobs:
           RSA_PRIV_KEY: ${{ secrets.RSA_PRIV_KEY }}
           STACK_NAME: ${{ secrets.APP_NAME }}    
         run: |
-          mkdir -p ~/.ssh/
+          mkdir -p ~/.ssh/ && chmod 700 ~/.ssh
+          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+          chmod 600 ~/.ssh/config
           eval $(ssh-agent -s)
           ssh-keygen -R $STACK_NAME-master.westeurope.cloudapp.azure.com || true
           ssh-add <(echo "$RSA_PRIV_KEY" | base64 --decode)
