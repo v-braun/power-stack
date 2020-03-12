@@ -26,7 +26,7 @@ jobs:
           echo $RSA_PRIV_KEY > ~/.ssh/id_rsa
           echo $RSA_PRIV_KEY_PWD > ~/.ssh/id_rsa.pwd
           eval `ssh-agent -s`
-          cat id_rsa.pwd | ssh-add -p ~/.ssh/id_rsa
+          cat ~/.ssh/id_rsa.pwd | ssh-add ~/.ssh/id_rsa
 
       - name: create docker context
         if: success()
