@@ -2,7 +2,7 @@ version: '3.5'
 
 networks:
   main-net:
-    external: true
+    name: main-net
 
 volumes:
   letsencrypt_data:
