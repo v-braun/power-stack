@@ -36,13 +36,6 @@ jobs:
           # echo $RSA_PRIV_KEY_PWD | ssh-add ~/.ssh/id_rsa
           ssh-add ~/.ssh/id_rsa
 
-      # need a docker-compose that supports docker-context
-      - name: install compose 
-        if: success()
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0-rc3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-
       - name: create docker context
         if: success()
         env: 
@@ -51,6 +44,13 @@ jobs:
           docker context create power-stack \
               --default-stack-orchestrator "swarm" \
               --docker "host=$SSH_HOST"
+
+      - name: init swarm
+        if: success()
+        env: 
+          SSH_HOST: ssh://vbr@power-stack-master.westeurope.cloudapp.azure.com
+        run: |
+          docker swarm init &>/dev/null || true
           
       - name: deploy proxy
         if: success()
@@ -61,7 +61,8 @@ jobs:
         run: |
           cd ./proxy
           docker context use power-stack
-          docker-compose up -d --build 
+          docker-compose build
+          docker stack deploy proxy -c docker-compose.yml
 
       - name: deploy monitoring
         if: success()
@@ -77,4 +78,5 @@ jobs:
         run: |
           cd ./monitoring
           docker context use power-stack
-          docker-compose up -d --build 
+          docker-compose build
+          docker stack deploy monitoring -c docker-compose.yml

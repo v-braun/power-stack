@@ -1,7 +1,7 @@
-version: "2.2"
+version: '3.5'
 
 networks:
-  main-net:
+  power-stack-net:
     external: true
 
 volumes:
@@ -11,15 +11,15 @@ volumes:
       
 services:
   telegraf:
+    image: power-stack/monitoring.telegraf
     build:
       context: ./telegraf
-    restart: always
-    depends_on:
-      - influxdb
+    deploy:
+      restart_policy: 
+        condition: on-failure
+        delay: 5s
     networks:
-      - main-net      
-    links:
-      - influxdb
+      - power-stack-net
     logging:
       driver: json-file
       options: 
@@ -38,9 +38,13 @@ services:
     #   - 8125:8125/udp
 
   influxdb:
+    image: power-stack/monitoring.influxdb
     build:
-      context: ./influxdb    
-    restart: always
+      context: ./influxdb
+    deploy:
+      restart_policy: 
+        condition: on-failure
+        delay: 5s
     environment:
       - INFLUXDB_DB=${INFLUXDB_NAME}
       - INFLUXDB_ADMIN_USER=${INFLUXDB_USER_NAME}
@@ -51,73 +55,78 @@ services:
     # ports:
     #   - 8086:8086
     networks:
-      - main-net
+      - power-stack-net
     volumes:
       - influxdb_data:/var/lib/influxdb
-    logging:
-      driver: json-file
-      options: 
-        max-size: 2m
 
   chronograf:
     image: chronograf:1.8
-    restart: always
+    deploy:
+      restart_policy: 
+        condition: on-failure
+        delay: 5s
+      labels: 
+        - "traefik.enable=true"
+        - "traefik.http.services.chronograf.loadbalancer.server.port=8888"
+        - "traefik.http.routers.chronograf.middlewares=simple_auth" # with basic auth
+        - "traefik.http.routers.chronograf.rule=Host(`${CHRONOGRAF_WEB_DOMAIN}`)"
+        - "traefik.http.routers.chronograf.entrypoints=https"
+        - "traefik.http.routers.chronograf.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.chronograf.tls=true"
+        - "traefik.http.routers.chronograf.service=chronograf"        
     networks:
-      - main-net
+      - power-stack-net
     volumes:
       - chronograf_data:/var/lib/chronograf
-    links:
-      - influxdb
     entrypoint: 'chronograf --influxdb-url=http://influxdb:8086'
-    logging:
-      driver: json-file
-      options: 
-        max-size: 2m
-    labels: 
-      - "traefik.enable=true"
-      - "traefik.http.services.chronograf.loadbalancer.server.port=8888"
-      - "traefik.http.routers.chronograf.middlewares=simple_auth" # with basic auth
-      - "traefik.http.routers.chronograf.rule=Host(`${CHRONOGRAF_WEB_DOMAIN}`)"
-      - "traefik.http.routers.chronograf.entrypoints=https"
-      - "traefik.http.routers.chronograf.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.chronograf.tls=true"
-      - "traefik.http.routers.chronograf.service=chronograf"
-
-
 
   dozzle:
     image: amir20/dozzle:latest
+    deploy:
+      restart_policy: 
+        condition: on-failure
+        delay: 5s
+      labels: 
+        - "traefik.enable=true"
+        - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+        - "traefik.http.routers.dozzle.middlewares=simple_auth" # with basic auth
+        - "traefik.http.routers.dozzle.rule=Host(`${DOZZLE_WEB_DOMAIN}`)"
+        - "traefik.http.routers.dozzle.entrypoints=https"
+        - "traefik.http.routers.dozzle.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.dozzle.tls=true"
+        - "traefik.http.routers.dozzle.service=dozzle"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    restart: always
-    # ports:
-      # - "8888:8080"
     networks:
-      - main-net
+      - power-stack-net
     logging:
       driver: json-file
       options: 
         max-size: 10m
-    labels: 
-      - "traefik.enable=true"
-      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
-      - "traefik.http.routers.dozzle.middlewares=simple_auth" # with basic auth
-      - "traefik.http.routers.dozzle.rule=Host(`${DOZZLE_WEB_DOMAIN}`)"
-      - "traefik.http.routers.dozzle.entrypoints=https"
-      - "traefik.http.routers.dozzle.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.dozzle.tls=true"
-      - "traefik.http.routers.dozzle.service=dozzle"
+
 
   grafana:
+    image: power-stack/monitoring.grafana
     build:
       context: ./grafana
-    restart: always
+    deploy:
+      restart_policy: 
+        condition: on-failure
+        delay: 5s
+      labels: 
+        - "traefik.enable=true"
+        - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+        - "traefik.http.routers.grafana.rule=Host(`${GRAFANA_WEB_DOMAIN}`)"
+        - "traefik.http.routers.grafana.entrypoints=https"
+        - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.grafana.tls=true"
+        - "traefik.http.routers.grafana.service=grafana"
+      # volumes:
+        # - grafana_data:/var/lib/grafana
+        # - ./grafana/provisioning/:/etc/grafana/provisioning/
+        # - ./grafana/dashboards/:/var/lib/grafana/dashboards/        
     networks:
-      - main-net
-    links:
-      - influxdb    
-    depends_on:
-      - influxdb
+      - power-stack-net
     logging:
       driver: json-file
       options: 
@@ -129,17 +138,4 @@ services:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER_NAME}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_USER_PWD}
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-worldmap-panel,grafana-piechart-panel
-    # ports:
-    #   - 3000:3000
-    labels: 
-      - "traefik.enable=true"
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-      - "traefik.http.routers.grafana.rule=Host(`${GRAFANA_WEB_DOMAIN}`)"
-      - "traefik.http.routers.grafana.entrypoints=https"
-      - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.grafana.tls=true"
-      - "traefik.http.routers.grafana.service=grafana"
-    # volumes:
-      # - grafana_data:/var/lib/grafana
-      # - ./grafana/provisioning/:/etc/grafana/provisioning/
-      # - ./grafana/dashboards/:/var/lib/grafana/dashboards/
+

@@ -1,8 +1,8 @@
 version: '3.5'
 
 networks:
-  main-net:
-    name: main-net
+  power-stack-net:
+    name: power-stack-net
 
 volumes:
   letsencrypt_data:
@@ -10,7 +10,6 @@ volumes:
 services:
   proxy:
     image: traefik:2.1
-    container_name: "proxy"
     command: 
       - "--log.level=WARN"
       - "--api.insecure=true"
@@ -23,34 +22,36 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.email=mail@viktor-braun.de"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
     networks:
-      - main-net
+      - power-stack-net
     ports:
       - 80:80
       - 443:443
-    labels: 
-      - "traefik.enable=true"
-      # auth
-      # - "traefik.http.middlewares.simple_auth.basicauth.users=${BASIC_AUTH_USR}:${BASIC_AUTH_PWD}"
-      # redirect 2 HTTPS
-      - "traefik.http.middlewares.https_redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.https_redirect.redirectscheme.permanent=true"      
-      - "traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)"
-      - "traefik.http.routers.http_catchall.entrypoints=http"
-      - "traefik.http.routers.http_catchall.middlewares=https_redirect"
-      # traefik web frontend 
-      # - "traefik.http.routers.proxy.middlewares=simple_auth" # with basic auth
-      - "traefik.http.routers.proxy.rule=Host(`${PROXY_DASHBOARD_UI_DOMAIN}`)"
-      - "traefik.http.routers.proxy.entrypoints=https"
-      - "traefik.http.routers.proxy.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.proxy.tls=true"
+    deploy:
+      restart_policy: 
+        condition: on-failure
+        delay: 5s        
+      labels: 
+        - "traefik.enable=true"
+        # auth
+        # - "traefik.http.middlewares.simple_auth.basicauth.users=${BASIC_AUTH_USR}:${BASIC_AUTH_PWD}"
+        # redirect 2 HTTPS
+        - "traefik.http.middlewares.https_redirect.redirectscheme.scheme=https"
+        - "traefik.http.middlewares.https_redirect.redirectscheme.permanent=true"      
+        - "traefik.http.routers.http_catchall.rule=HostRegexp(`{any:.+}`)"
+        - "traefik.http.routers.http_catchall.entrypoints=http"
+        - "traefik.http.routers.http_catchall.middlewares=https_redirect"
+        # traefik web frontend 
+        # - "traefik.http.routers.proxy.middlewares=simple_auth" # with basic auth
+        - "traefik.http.routers.proxy.rule=Host(`${PROXY_DASHBOARD_UI_DOMAIN}`)"
+        - "traefik.http.routers.proxy.entrypoints=https"
+        - "traefik.http.routers.proxy.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.proxy.tls=true"
 
-      - "traefik.http.services.proxy.loadbalancer.server.port=8080"
-      - "traefik.http.routers.proxy.service=proxy"
-
+        - "traefik.http.services.proxy.loadbalancer.server.port=8080"
+        - "traefik.http.routers.proxy.service=proxy"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock" 
       - "letsencrypt_data:/letsencrypt"
-    restart: always
     logging:
       driver: json-file
       options: 
