@@ -54,6 +54,7 @@ jobs:
         run: |
           cd ./proxy
           docker context use power-stack
+          docker swarm init > /dev/null
           docker network ls|grep main-net > /dev/null || docker network create -d overlay --attachable main-net
           docker-compose up -d --build 
 
