@@ -17,6 +17,8 @@ services:
       - "--entrypoints.https.address=:443"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.watch=true"
+      - "--providers.docker.swarmMode=true"
       - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory" # activates staging env for tests
       - "--certificatesresolvers.letsencrypt.acme.email=mail@viktor-braun.de"
