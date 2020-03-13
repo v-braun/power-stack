@@ -6,7 +6,6 @@ variable "name" {
 variable "auth" {
   type = object({
     username = string
-    pubkey = string
   })
 }
 

@@ -40,7 +40,6 @@ module "master_node" {
   name = "${var.name}-master"
   auth = {
     username  = var.username
-    pubkey    = file(var.pubkey_file)
   }
   size = "Standard_D2s_v3"
   diag_storage_endpoint = azurerm_storage_account.diag_storage.primary_blob_endpoint

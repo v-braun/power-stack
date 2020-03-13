@@ -34,12 +34,6 @@ variable "username" {
   description = "Enter admin username to SSH into Linux VM"
 }
 
-variable "pubkey_file" {
-  type = string
-  description = "Enter the public key to use for ssh connections"
-  default = "~/.ssh/id_rsa.pub"
-}
-
 variable "rsync_port" {
   type = string
   description = "Enter the port used for rsync backups"

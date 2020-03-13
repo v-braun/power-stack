@@ -21,7 +21,7 @@ jobs:
         env: 
           RSA_PRIV_KEY: ${{ secrets.RSA_PRIV_KEY }}
           # RSA_PRIV_KEY_PWD: ${{ secrets.RSA_PRIV_KEY_PWD }}
-          STACK_NAME: ${{ secrets.APP_NAME }}    
+          VM_DOMAIN: power-stack-master.westeurope.cloudapp.azure.com
         run: |
           mkdir -p ~/.ssh/ && chmod 700 ~/.ssh
           echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
@@ -31,19 +31,18 @@ jobs:
           chmod 400 ~/.ssh/id_rsa
 
           eval $(ssh-agent -s)
-          ssh-keygen -R $STACK_NAME-master.westeurope.cloudapp.azure.com || true
-          ssh-keyscan -H $STACK_NAME-master.westeurope.cloudapp.azure.com >> ~/.ssh/known_hosts
+          ssh-keygen -R $VM_DOMAIN || true
+          ssh-keyscan -H $VM_DOMAIN >> ~/.ssh/known_hosts
           # echo $RSA_PRIV_KEY_PWD | ssh-add ~/.ssh/id_rsa
           ssh-add ~/.ssh/id_rsa
 
       - name: create docker context
         if: success()
         env: 
-          STACK_NAME: ${{ secrets.APP_NAME }}   
-          VM_USERNAME: ${{ secrets.VM_USERNAME }}
+          SSH_HOST: ssh://vbr@power-stack-master.westeurope.cloudapp.azure.com
         run: |
           docker context create power-stack \
-              --docker "host=ssh://$VM_USERNAME@$STACK_NAME-master.westeurope.cloudapp.azure.com"
+              --docker "host=$SSH_HOST"
           
       - name: deploy proxy
         if: success()
