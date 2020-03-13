@@ -53,6 +53,7 @@ jobs:
         run: |
           cd ./proxy
           docker context use power-stack
+          docker context inspect
           docker-compose up -d --build 
 
       - name: deploy monitoring
