@@ -44,6 +44,7 @@ jobs:
           docker context create power-stack \
               --default-stack-orchestrator "swarm" \
               --docker "host=$SSH_HOST"
+          docker context use power-stack
 
       - name: init swarm
         if: success()
@@ -60,7 +61,6 @@ jobs:
           BASIC_AUTH_PWD: ${{ secrets.BASIC_AUTH_PWD }}
         run: |
           cd ./proxy
-          docker context use power-stack
           docker-compose build
           docker stack deploy proxy -c docker-compose.yml
 
@@ -77,6 +77,5 @@ jobs:
           DOZZLE_WEB_DOMAIN: ${{ secrets.DOZZLE_WEB_DOMAIN }}
         run: |
           cd ./monitoring
-          docker context use power-stack
           docker-compose build
           docker stack deploy monitoring -c docker-compose.yml
