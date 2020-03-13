@@ -1,5 +1,5 @@
 locals {
-  key_path = "${path.module}/../provisioning/keys"
+  key_path = "${path.module}/../../provisioning/keys"
   authorized_keys = fileset(local.key_path, "*.pub")
 } 
 
