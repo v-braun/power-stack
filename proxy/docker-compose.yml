@@ -30,7 +30,7 @@ services:
     labels: 
       - "traefik.enable=true"
       # auth
-      - "traefik.http.middlewares.simple_auth.basicauth.users=${BASIC_AUTH_USR}:${BASIC_AUTH_PWD}"
+      # - "traefik.http.middlewares.simple_auth.basicauth.users=${BASIC_AUTH_USR}:${BASIC_AUTH_PWD}"
       # redirect 2 HTTPS
       - "traefik.http.middlewares.https_redirect.redirectscheme.scheme=https"
       - "traefik.http.middlewares.https_redirect.redirectscheme.permanent=true"      
@@ -38,7 +38,7 @@ services:
       - "traefik.http.routers.http_catchall.entrypoints=http"
       - "traefik.http.routers.http_catchall.middlewares=https_redirect"
       # traefik web frontend 
-      - "traefik.http.routers.proxy.middlewares=simple_auth" # with basic auth
+      # - "traefik.http.routers.proxy.middlewares=simple_auth" # with basic auth
       - "traefik.http.routers.proxy.rule=Host(`${PROXY_DASHBOARD_UI_DOMAIN}`)"
       - "traefik.http.routers.proxy.entrypoints=https"
       - "traefik.http.routers.proxy.tls.certresolver=letsencrypt"
