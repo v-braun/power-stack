@@ -36,6 +36,14 @@ jobs:
           # echo $RSA_PRIV_KEY_PWD | ssh-add ~/.ssh/id_rsa
           ssh-add ~/.ssh/id_rsa
 
+      # need a docker-compose that supports docker-context
+      - name: install compose 
+        if: success()
+        env: 
+        run: |
+          sudo curl -L https://github.com/docker/compose/releases/download/1.26.0-rc2/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
       - name: create docker context
         if: success()
         env: 
@@ -53,7 +61,6 @@ jobs:
         run: |
           cd ./proxy
           docker context use power-stack
-          docker-compose -v
           docker-compose up -d --build 
 
       - name: deploy monitoring
