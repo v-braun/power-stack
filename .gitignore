@@ -34,3 +34,6 @@ local.backend.tf
 # local used variables
 local.auto.tfvars
 .env
+
+infrastructure/provisioning/keys/*.key
+infrastructure/provisioning/keys/*.key.pub
