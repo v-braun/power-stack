@@ -49,6 +49,7 @@ jobs:
           SSH_HOST: ssh://vbr@power-stack-master.westeurope.cloudapp.azure.com
         run: |
           docker context create power-stack \
+              --default-stack-orchestrator "all" \
               --docker "host=$SSH_HOST"
           
       - name: deploy proxy
