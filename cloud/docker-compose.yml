@@ -5,9 +5,9 @@ networks:
     external: true
 
 volumes:
-  data:
+  cloud_data:
     name: cloud_data
-  db_data:
+  cloud_db_data:
     name: cloud_db_data
   redis_data:
 
@@ -15,11 +15,10 @@ volumes:
 services:
   owncloud:
     image: owncloud/server:${OWNCLOUD_VERSION}
-    restart: always
     networks:
       - power-stack-net
     volumes:
-      - data:/mnt/data
+      - cloud_data:/mnt/data
     deploy:
       restart_policy: 
         condition: on-failure
@@ -52,7 +51,10 @@ services:
 
   db:
     image: mysql:8.0
-    restart: always
+    deploy:
+      restart_policy: 
+        condition: on-failure
+        delay: 5s    
     command: [
       '--character-set-server=utf8mb4', 
       '--collation-server=utf8mb4_unicode_ci',
@@ -61,7 +63,7 @@ services:
     networks:
       - power-stack-net
     volumes:
-      - db_data:/var/lib/mysql
+      - cloud_db_data:/var/lib/mysql
     environment:
       - "MYSQL_ROOT_PASSWORD=${OWNCLOUD_DB_ROOT_PWD}"
       - "MYSQL_USER=${OWNCLOUD_DB_USERNAME}"
@@ -76,7 +78,10 @@ services:
 
   redis:
     image: redis:5.0
-    restart: always
+    deploy:
+      restart_policy: 
+        condition: on-failure
+        delay: 5s
     networks:
       - power-stack-net
     environment:
