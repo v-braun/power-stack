@@ -21,13 +21,13 @@ jobs:
         env: 
           SSH_PRIV_KEY: ${{ secrets.SSH_PRIV_KEY }}
           VM_DOMAIN: power-stack-master.westeurope.cloudapp.azure.com
+          SSH_HOST: ssh://vbr@power-stack-master.westeurope.cloudapp.azure.com
         run: |
           . ./.github/workflows/prepare.sh
 
       - name: init swarm
         if: success()
         env: 
-          SSH_HOST: ssh://vbr@power-stack-master.westeurope.cloudapp.azure.com
         run: |
           docker context use power-stack
           docker swarm init &>/dev/null || true
@@ -56,6 +56,7 @@ jobs:
           GRAFANA_WEB_DOMAIN: ${{ secrets.GRAFANA_WEB_DOMAIN }}
           CHRONOGRAF_WEB_DOMAIN: ${{ secrets.CHRONOGRAF_WEB_DOMAIN }}
           DOZZLE_WEB_DOMAIN: ${{ secrets.DOZZLE_WEB_DOMAIN }}
+          REGISTRY_DOMAIN: ${{ secrets.REGISTRY_DOMAIN }}
         run: |
           cd ./monitoring
           docker context use power-stack
