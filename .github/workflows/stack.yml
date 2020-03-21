@@ -40,7 +40,7 @@ jobs:
           REGISTRY_DOMAIN: ${{ secrets.REGISTRY_DOMAIN }}
         run: |
           cd ./utils
-          docker-compose build
+          docker context use power-stack
           docker stack deploy utils -c docker-compose.yml
 
       - name: deploy monitoring
@@ -56,5 +56,6 @@ jobs:
           DOZZLE_WEB_DOMAIN: ${{ secrets.DOZZLE_WEB_DOMAIN }}
         run: |
           cd ./monitoring
+          docker context use power-stack
           docker-compose build
           docker stack deploy monitoring -c docker-compose.yml
