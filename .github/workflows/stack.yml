@@ -21,13 +21,12 @@ jobs:
         env: 
           SSH_PRIV_KEY: ${{ secrets.SSH_PRIV_KEY }}
           VM_DOMAIN: power-stack-master.westeurope.cloudapp.azure.com
-          SSH_HOST: ssh://vbr@power-stack-master.westeurope.cloudapp.azure.com
+          SSH_HOST: ssh://${{ secrets.SSH_USER }}@power-stack-master.westeurope.cloudapp.azure.com
         run: |
           . ./.github/workflows/prepare.sh
 
       - name: init swarm
         if: success()
-        env: 
         run: |
           docker context use power-stack
           docker swarm init &>/dev/null || true
