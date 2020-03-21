@@ -2,7 +2,7 @@ version: '3.5'
 
 networks:
   power-stack-net:
-    name: power-stack-net
+    external: true
 
 volumes:
   data:
