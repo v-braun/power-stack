@@ -1,8 +1,8 @@
 version: '3.5'
 
 networks:
-  main-net:
-    external: true
+  power-stack-net:
+    name: power-stack-net
 
 volumes:
   data:
@@ -17,12 +17,21 @@ services:
     image: owncloud/server:${OWNCLOUD_VERSION}
     restart: always
     networks:
-      - main-net
+      - power-stack-net
     volumes:
       - data:/mnt/data
-    links:
-      - db:db
-      - redis:redis
+    deploy:
+      restart_policy: 
+        condition: on-failure
+        delay: 5s
+      labels: 
+        - "traefik.enable=true"
+        - "traefik.http.services.cloud.loadbalancer.server.port=8080"
+        - "traefik.http.routers.cloud.rule=Host(`${OWNCLOUD_DOMAIN}`)"
+        - "traefik.http.routers.cloud.entrypoints=https"
+        - "traefik.http.routers.cloud.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.cloud.tls=true"
+        - "traefik.http.routers.cloud.service=cloud"        
     environment:
       - "OWNCLOUD_DOMAIN=${OWNCLOUD_DOMAIN}"
       - "OWNCLOUD_DB_TYPE=mysql"
@@ -35,14 +44,11 @@ services:
       - "OWNCLOUD_MYSQL_UTF8MB4=true"
       - "OWNCLOUD_REDIS_ENABLED=true"
       - "OWNCLOUD_REDIS_HOST=redis"
-    labels: 
-      - "traefik.enable=true"
-      - "traefik.http.services.cloud.loadbalancer.server.port=8080"
-      - "traefik.http.routers.cloud.rule=Host(`${OWNCLOUD_DOMAIN}`)"
-      - "traefik.http.routers.cloud.entrypoints=https"
-      - "traefik.http.routers.cloud.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.cloud.tls=true"
-      - "traefik.http.routers.cloud.service=cloud"
+    logging:
+      driver: json-file
+      options: 
+        max-size: 1m
+
 
   db:
     image: mysql:8.0
@@ -53,7 +59,7 @@ services:
       '--default-authentication-plugin=mysql_native_password'
     ]
     networks:
-      - main-net
+      - power-stack-net
     volumes:
       - db_data:/var/lib/mysql
     environment:
@@ -63,13 +69,21 @@ services:
       - "MYSQL_DATABASE=${OWNCLOUD_DB_NAME}"
       - "MYSQL_MAX_ALLOWED_PACKET=128M"
       - "MYSQL_INNODB_LOG_FILE_SIZE=64M"
+    logging:
+      driver: json-file
+      options: 
+        max-size: 1m
 
   redis:
     image: redis:5.0
     restart: always
     networks:
-      - main-net
+      - power-stack-net
     environment:
       - REDIS_DATABASES=1
     volumes:
       - redis_data:/var/lib/redis
+    logging:
+      driver: json-file
+      options: 
+        max-size: 1m

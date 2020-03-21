@@ -74,3 +74,32 @@ jobs:
           docker stack deploy monitoring --with-registry-auth -c docker-compose.yml
           docker service list
 
+      - name: deploy monitoring
+        if: success()
+        env: 
+          OWNCLOUD_DOMAIN: ${{ secrets.OWNCLOUD_DOMAIN }}
+          OWNCLOUD_DB_NAME: ${{ secrets.OWNCLOUD_DB_NAME }}
+          OWNCLOUD_DB_USERNAME: ${{ secrets.OWNCLOUD_DB_USERNAME }}
+          OWNCLOUD_DB_PASSWORD: ${{ secrets.OWNCLOUD_DB_PASSWORD }}
+          OWNCLOUD_ADMIN_USERNAME: ${{ secrets.OWNCLOUD_ADMIN_USERNAME }}
+          OWNCLOUD_ADMIN_PASSWORD: ${{ secrets.OWNCLOUD_ADMIN_PASSWORD }}
+          
+          REGISTRY_DOMAIN: ${{ secrets.REGISTRY_DOMAIN }}
+          BASIC_AUTH_USR: ${{ secrets.BASIC_AUTH_USR }}
+          BASIC_AUTH_PWD: ${{ secrets.BASIC_AUTH_PWD }}
+        run: |
+          cd ./cloud
+          docker context use power-stack
+          
+          echo "login to repo"
+          docker login -u $BASIC_AUTH_USR -p $BASIC_AUTH_PWD $REGISTRY_DOMAIN
+
+          echo "build images"
+          docker-compose build
+          echo "push images"
+          docker-compose push
+
+          echo "start stack"
+          docker stack deploy cloud --with-registry-auth -c docker-compose.yml
+          docker service list
+
