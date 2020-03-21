@@ -11,7 +11,7 @@ volumes:
       
 services:
   telegraf:
-    image: ${REGISTRY_URL}/monitoring.telegraf
+    image: ${REGISTRY_DOMAIN}/monitoring.telegraf
     build:
       context: ./telegraf
     deploy:
@@ -38,7 +38,7 @@ services:
     #   - 8125:8125/udp
 
   influxdb:
-    image: ${REGISTRY_URL}/monitoring.influxdb
+    image: ${REGISTRY_DOMAIN}/monitoring.influxdb
     build:
       context: ./influxdb
     deploy:
@@ -106,7 +106,7 @@ services:
 
 
   grafana:
-    image: ${REGISTRY_URL}/monitoring.grafana
+    image: ${REGISTRY_DOMAIN}/monitoring.grafana
     build:
       context: ./grafana
     deploy:
