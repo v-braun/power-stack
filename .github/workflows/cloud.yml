@@ -32,9 +32,10 @@ jobs:
           OWNCLOUD_DB_NAME: ${{ secrets.OWNCLOUD_DB_NAME }}
           OWNCLOUD_DB_USERNAME: ${{ secrets.OWNCLOUD_DB_USERNAME }}
           OWNCLOUD_DB_PASSWORD: ${{ secrets.OWNCLOUD_DB_PASSWORD }}
+          OWNCLOUD_DB_ROOT_PWD: ${{ secrets.OWNCLOUD_DB_ROOT_PWD }}
           OWNCLOUD_ADMIN_USERNAME: ${{ secrets.OWNCLOUD_ADMIN_USERNAME }}
           OWNCLOUD_ADMIN_PASSWORD: ${{ secrets.OWNCLOUD_ADMIN_PASSWORD }}
-          
+          OWNCLOUD_VERSION: "10.3"
           REGISTRY_DOMAIN: ${{ secrets.REGISTRY_DOMAIN }}
           BASIC_AUTH_USR: ${{ secrets.BASIC_AUTH_USR }}
           BASIC_AUTH_PWD: ${{ secrets.BASIC_AUTH_PWD }}
