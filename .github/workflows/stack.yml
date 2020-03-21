@@ -29,6 +29,7 @@ jobs:
         env: 
           SSH_HOST: ssh://vbr@power-stack-master.westeurope.cloudapp.azure.com
         run: |
+          docker context use power-stack
           docker swarm init &>/dev/null || true
           
       - name: deploy utils
@@ -42,6 +43,7 @@ jobs:
           cd ./utils
           docker context use power-stack
           docker stack deploy utils -c docker-compose.yml
+          docker service list
 
       - name: deploy monitoring
         if: success()
@@ -59,3 +61,5 @@ jobs:
           docker context use power-stack
           docker-compose build
           docker stack deploy monitoring -c docker-compose.yml
+          docker service list
+
