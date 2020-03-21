@@ -19,8 +19,8 @@ jobs:
       - name: generate public key file
         if: success()
         env: 
-          RSA_PUB_KEY: ${{ secrets.RSA_PUB_KEY }}      
-        run: echo $RSA_PUB_KEY > ./infrastructure/id_rsa.pub
+          SSH_PUB_KEY: ${{ secrets.SSH_PUB_KEY }}      
+        run: echo $SSH_PUB_KEY > ./infrastructure/id_rsa.pub
 
       - name: generate tf backend file
         if: success()

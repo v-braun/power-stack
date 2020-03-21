@@ -19,32 +19,10 @@ jobs:
       - name: generate private key file
         if: success()
         env: 
-          RSA_PRIV_KEY: ${{ secrets.RSA_PRIV_KEY }}
-          # RSA_PRIV_KEY_PWD: ${{ secrets.RSA_PRIV_KEY_PWD }}
+          SSH_PRIV_KEY: ${{ secrets.SSH_PRIV_KEY }}
           VM_DOMAIN: power-stack-master.westeurope.cloudapp.azure.com
         run: |
-          mkdir -p ~/.ssh/ && chmod 700 ~/.ssh
-          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-          chmod 600 ~/.ssh/config
-          # echo "$RSA_PRIV_KEY" | base64 --decode > ~/.ssh/id_rsa
-          echo "$RSA_PRIV_KEY" > ~/.ssh/id_rsa
-          chmod 400 ~/.ssh/id_rsa
-
-          eval $(ssh-agent -s)
-          ssh-keygen -R $VM_DOMAIN || true
-          ssh-keyscan -H $VM_DOMAIN >> ~/.ssh/known_hosts
-          # echo $RSA_PRIV_KEY_PWD | ssh-add ~/.ssh/id_rsa
-          ssh-add ~/.ssh/id_rsa
-
-      - name: create docker context
-        if: success()
-        env: 
-          SSH_HOST: ssh://vbr@power-stack-master.westeurope.cloudapp.azure.com
-        run: |
-          docker context create power-stack \
-              --default-stack-orchestrator "swarm" \
-              --docker "host=$SSH_HOST"
-          docker context use power-stack
+          . ./.github/workflows/prepare.sh
 
       - name: init swarm
         if: success()
@@ -53,16 +31,17 @@ jobs:
         run: |
           docker swarm init &>/dev/null || true
           
-      - name: deploy proxy
+      - name: deploy utils
         if: success()
         env: 
           PROXY_DASHBOARD_UI_DOMAIN: ${{ secrets.PROXY_DASHBOARD_UI_DOMAIN }}
           BASIC_AUTH_USR: ${{ secrets.BASIC_AUTH_USR }}
-          BASIC_AUTH_PWD: ${{ secrets.BASIC_AUTH_PWD }}
+          BASIC_AUTH_PWD_HASH: ${{ secrets.BASIC_AUTH_PWD_HASH }}
+          REGISTRY_DOMAIN: ${{ secrets.REGISTRY_DOMAIN }}
         run: |
-          cd ./proxy
+          cd ./utils
           docker-compose build
-          docker stack deploy proxy -c docker-compose.yml
+          docker stack deploy utils -c docker-compose.yml
 
       - name: deploy monitoring
         if: success()
