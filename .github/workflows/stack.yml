@@ -71,6 +71,6 @@ jobs:
           docker-compose push
 
           echo "start stack"
-          docker stack deploy monitoring -c docker-compose.yml
+          docker stack deploy monitoring --with-registry-auth -c docker-compose.yml
           docker service list
 
