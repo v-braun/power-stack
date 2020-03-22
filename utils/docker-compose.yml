@@ -12,7 +12,7 @@ services:
     image: traefik:2.1
     command: 
       # - "--api=true"
-      - "--log.level=DEBUG"
+      - "--log.level=INFO"
       - "--api.insecure=true"
       - "--entrypoints.http.address=:80"
       - "--entrypoints.https.address=:443"
@@ -61,7 +61,7 @@ services:
     logging:
       driver: json-file
       options: 
-        max-size: 10m
+        max-size: 2m
   registry:
     image: registry:2.7
     networks:
