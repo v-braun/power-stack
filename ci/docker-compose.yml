@@ -7,8 +7,6 @@ networks:
 secrets:
   gitlab_root_password:
     file: ./admin_pwd.txt
-  gitlab_runner_reg_token:
-    file: ./runner_reg_token.txt
   
 volumes:
   gitlab_data:
