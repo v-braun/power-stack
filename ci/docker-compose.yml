@@ -44,7 +44,7 @@ services:
       driver: json-file
       options: 
         max-size: 10m
-  gitlab-runner:
+  gitlab_runner:
     image: gitlab/gitlab-runner:alpine
     deploy:
       mode: replicated
