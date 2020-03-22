@@ -1,0 +1,1 @@
+enter here your gitlab runner reg token and rename this file to runner_reg_token.txt

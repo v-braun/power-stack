@@ -24,6 +24,8 @@ jobs:
         if: success()
         env: 
           GITLAB_ROOT_PASSWORD: ${{ secrets.GITLAB_ROOT_PASSWORD }}
+          GITLAB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GITLAB_PERSONAL_ACCESS_TOKEN }}
+          GITLAB_RUNNER_REG_TOKEN: ${{ secrets.GITLAB_RUNNER_REG_TOKEN }}
           GITLAB_UI_DOMAIN: ${{ secrets.GITLAB_UI_DOMAIN }}
           REGISTRY_DOMAIN: ${{ secrets.REGISTRY_DOMAIN }}
           BASIC_AUTH_USR: ${{ secrets.BASIC_AUTH_USR }}
@@ -37,7 +39,9 @@ jobs:
 
           echo "generate passwort file"
           echo $GITLAB_ROOT_PASSWORD > admin_pwd.txt
-          
+          echo $GITLAB_PERSONAL_ACCESS_TOKEN > gitlab_access_token.txt
+          echo $GITLAB_RUNNER_REG_TOKEN > runner_reg_token.txt
+
           echo "start stack"
           docker stack deploy ci --with-registry-auth -c docker-compose.yml
           docker service list
