@@ -8,3 +8,7 @@ buttons:
   - title: Deploy Stack
     action: "deploy_cloud"
     description: Deploy the cloud services
+  - title: Deploy Meet
+    action: "deploy_meet"
+    description: Deploy the meeting services
+    

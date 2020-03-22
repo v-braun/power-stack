@@ -1,26 +1,29 @@
 version: '3.5'
 
 networks:
-  main-net:
+  power-stack-net:
     external: true
 
 services:
   app:
     image: nextcloud
-    restart: always
     networks:
-      - main-net    
+      - power-stack-net   
     environment:
       - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER}
       - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD}
-    labels: 
-      - "traefik.enable=true"
-      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
-      - "traefik.http.routers.nextcloud.rule=Host(`${NEXTCLOUD_UI_DOMAIN}`)"
-      - "traefik.http.routers.nextcloud.entrypoints=https"
-      - "traefik.http.routers.nextcloud.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.nextcloud.tls=true"
-      - "traefik.http.routers.nextcloud.service=nextcloud"
+    deploy:
+      restart_policy: 
+        condition: on-failure
+        delay: 5s
+      labels: 
+        - "traefik.enable=true"
+        - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
+        - "traefik.http.routers.nextcloud.rule=Host(`${NEXTCLOUD_UI_DOMAIN}`)"
+        - "traefik.http.routers.nextcloud.entrypoints=https"
+        - "traefik.http.routers.nextcloud.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.nextcloud.tls=true"
+        - "traefik.http.routers.nextcloud.service=nextcloud"
     logging:
       driver: json-file
       options: 
