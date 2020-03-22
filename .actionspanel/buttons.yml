@@ -11,6 +11,6 @@ buttons:
   - title: Deploy Meet
     action: "deploy_meet"
     description: Deploy the ci services
-    - title: Deploy CI
+  - title: Deploy CI
     action: "deploy_ci"
     description: Deploy the CI services
