@@ -36,7 +36,7 @@ services:
         # gitalb ssh in port is 22 but will be bound to traefik port 8022
         # traefik cannot use 22 otherwise I will not be able access the VM
         - "traefik.http.services.gitlab_ssh.loadbalancer.server.port=22"
-        - "traefik.http.routers.gitlab_ssh.rule==HostSNI(`*`)"
+        - "traefik.http.routers.gitlab_ssh.rule=HostSNI(`*`)"
         - "traefik.http.routers.gitlab_ssh.entrypoints=ssh_gitlab"
         - "traefik.http.routers.gitlab_ssh.tls.certresolver=letsencrypt"
         - "traefik.http.routers.gitlab_ssh.tls=true"
