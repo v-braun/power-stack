@@ -1,0 +1,1 @@
+enter here your gitlab root admin password and rename this file to admin_pwd.txt

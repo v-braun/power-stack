@@ -1,0 +1,52 @@
+version: '3.5'
+
+networks:
+  power-stack-net:
+    external: true
+
+secrets:
+  gitlab_root_password:
+    file: ./admin_pwd.txt
+
+services:
+  gitlab:
+    image: 'gitlab/gitlab-ce:latest'
+    networks:
+      - power-stack-net   
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://${GITLAB_UI_DOMAIN}'
+        gitlab_rails['gitlab_shell_ssh_port'] = 8022
+    secrets:
+      - gitlab_root_password
+    deploy:
+      restart_policy: 
+        condition: on-failure
+        delay: 5s
+      labels: 
+        - "traefik.enable=true"
+        - "traefik.http.services.gitlab_web.loadbalancer.server.port=80"
+        - "traefik.http.routers.gitlab_web.rule=Host(`${GITLAB_UI_DOMAIN}`)"
+        - "traefik.http.routers.gitlab_web.entrypoints=https"
+        - "traefik.http.routers.gitlab_web.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.gitlab_web.tls=true"
+        - "traefik.http.routers.gitlab_web.service=gitlab_web"
+
+        # gitalb ssh in port is 22 but will be bound to traefik port 8022
+        # traefik cannot use 22 otherwise I will not be able access the VM
+        - "traefik.http.services.gitlab_ssh.loadbalancer.server.port=22"
+        - "traefik.http.routers.gitlab_ssh.rule==HostSNI(`*`)"
+        - "traefik.http.routers.gitlab_ssh.entrypoints=ssh_gitlab"
+        - "traefik.http.routers.gitlab_ssh.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.gitlab_ssh.tls=true"
+        - "traefik.http.routers.gitlab_ssh.service=gitlab_ssh"
+    logging:
+      driver: json-file
+      options: 
+        max-size: 10m
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    deploy:
+      mode: replicated
+      replicas: 2
+
