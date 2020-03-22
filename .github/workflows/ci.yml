@@ -1,4 +1,4 @@
-name: deploy the CI stack services
+name: deploy the CI services
 
 # this actions will be triggered via [actionspanel](https://www.actionspanel.app/)
 on: repository_dispatch
@@ -20,9 +20,10 @@ jobs:
         run: |
           . ./.github/workflows/prepare.sh
 
-      - name: deploy meet
+      - name: deploy ci
         if: success()
         env: 
+          GITLAB_ROOT_PASSWORD: ${{ secrets.GITLAB_ROOT_PASSWORD }}
           GITLAB_UI_DOMAIN: ${{ secrets.GITLAB_UI_DOMAIN }}
           REGISTRY_DOMAIN: ${{ secrets.REGISTRY_DOMAIN }}
           BASIC_AUTH_USR: ${{ secrets.BASIC_AUTH_USR }}
@@ -30,10 +31,13 @@ jobs:
         run: |
           cd ./ci
           docker context use power-stack
-          
+
           echo "login to repo"
           docker login -u $BASIC_AUTH_USR -p $BASIC_AUTH_PWD $REGISTRY_DOMAIN
 
+          echo "generate passwort file"
+          echo $GITLAB_ROOT_PASSWORD > admin_pwd.txt
+          
           echo "start stack"
           docker stack deploy ci --with-registry-auth -c docker-compose.yml
           docker service list
