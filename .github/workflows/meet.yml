@@ -30,7 +30,7 @@ jobs:
           BASIC_AUTH_USR: ${{ secrets.BASIC_AUTH_USR }}
           BASIC_AUTH_PWD: ${{ secrets.BASIC_AUTH_PWD }}
         run: |
-          cd ./cloud
+          cd ./meet
           docker context use power-stack
           
           echo "login to repo"

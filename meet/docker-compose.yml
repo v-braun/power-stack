@@ -5,7 +5,7 @@ networks:
     external: true
 
 services:
-  app:
+  nextcloud:
     image: nextcloud
     networks:
       - power-stack-net   
