@@ -20,7 +20,7 @@ jobs:
         run: |
           . ./.github/workflows/prepare.sh
 
-      - name: deploy cloud
+      - name: deploy meet
         if: success()
         env: 
           NEXTCLOUD_ADMIN_USER: ${{ secrets.NEXTCLOUD_ADMIN_USER }}
