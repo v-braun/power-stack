@@ -17,7 +17,12 @@ services:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'https://${GITLAB_UI_DOMAIN}'
         gitlab_rails['gitlab_shell_ssh_port'] = 8022
-        nginx['enable'] = false
+        nginx['listen_port'] = 80
+        nginx['listen_https'] = false
+        nginx['proxy_set_headers'] = {
+          "X-Forwarded-Proto" => "https",
+          "X-Forwarded-Ssl" => "on"
+        }
     secrets:
       - gitlab_root_password
     deploy:
