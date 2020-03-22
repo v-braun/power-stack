@@ -10,7 +10,7 @@ buttons:
     description: Deploy the cloud services
   - title: Deploy Meet
     action: "deploy_meet"
-    description: Deploy the ci services
+    description: Deploy the meet services
   - title: Deploy CI
     action: "deploy_ci"
     description: Deploy the CI services
