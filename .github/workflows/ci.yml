@@ -1,0 +1,40 @@
+name: deploy the stack services
+
+# this actions will be triggered via [actionspanel](https://www.actionspanel.app/)
+on: repository_dispatch
+
+jobs:
+
+  deploy:
+    if: github.event.action == 'deploy_ci'
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: generate private key file
+        if: success()
+        env: 
+          SSH_PRIV_KEY: ${{ secrets.SSH_PRIV_KEY }}
+          VM_DOMAIN: power-stack-master.westeurope.cloudapp.azure.com
+          SSH_HOST: ssh://${{ secrets.SSH_USER }}@power-stack-master.westeurope.cloudapp.azure.com
+        run: |
+          . ./.github/workflows/prepare.sh
+
+      - name: deploy meet
+        if: success()
+        env: 
+          GITLAB_UI_DOMAIN: ${{ secrets.GITLAB_UI_DOMAIN }}
+          REGISTRY_DOMAIN: ${{ secrets.REGISTRY_DOMAIN }}
+          BASIC_AUTH_USR: ${{ secrets.BASIC_AUTH_USR }}
+          BASIC_AUTH_PWD: ${{ secrets.BASIC_AUTH_PWD }}
+        run: |
+          cd ./ci
+          docker context use power-stack
+          
+          echo "login to repo"
+          docker login -u $BASIC_AUTH_USR -p $BASIC_AUTH_PWD $REGISTRY_DOMAIN
+
+          echo "start stack"
+          docker stack deploy ci --with-registry-auth -c docker-compose.yml
+          docker service list
+
