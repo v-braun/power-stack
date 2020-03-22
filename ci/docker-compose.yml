@@ -9,8 +9,6 @@ secrets:
     file: ./admin_pwd.txt
   gitlab_runner_reg_token:
     file: ./runner_reg_token.txt
-  gitlab_runner_personal_access_token:
-    file: ./gitlab_access_token.txt
   
 volumes:
   gitlab_data:
@@ -77,13 +75,11 @@ services:
       - API_URL=https://${GITLAB_UI_DOMAIN}/api/v4
       - CI_SERVER_URL=https://${GITLAB_UI_DOMAIN}/ci
     entrypoint: "bash"
-    secrets:
-      - gitlab_runner_reg_token
     command: |
       -c '
         set -e
         printf "Setting configuration...\\n"
-        export REGISTRATION_TOKEN="$$(cat /run/secrets/gitlab_runner_reg_token)"
+        export REGISTRATION_TOKEN="${GITLAB_RUNNER_REG_TOKEN}"
         sed -i "s/^concurrent = .*/concurrent = $${CONCURRENT}/" /etc/gitlab-runner/config.toml
         printf "\\n"
         printf "Registering runner...\\n"
@@ -98,10 +94,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
-      mode: global
-      placement:
-        constraints:
-          - node.role == manager
+      restart_policy: 
+        condition: on-failure
+        delay: 30s
     healthcheck:
       test: ["CMD-SHELL", "gitlab-runner verify --name docker 2>&1 | grep --quiet \"is alive\""]
       start_period: 10s
@@ -115,8 +110,6 @@ services:
     environment:
       - API_URL=https://${GITLAB_UI_DOMAIN}/api/v4
       - CI_SERVER_URL=https://${GITLAB_UI_DOMAIN}/ci
-    secrets:
-      - gitlab_runner_personal_access_token
     entrypoint: sh
     command: |
       -c '
@@ -124,7 +117,7 @@ services:
         printf "Installing dependencies...\\n"
         apk --no-cache add curl jq
         printf "\\n"
-        export PERSONAL_ACCESS_TOKEN="$$(cat /run/secrets/gitlab_runner_personal_access_token)"
+        export PERSONAL_ACCESS_TOKEN="${GITLAB_PERSONAL_ACCESS_TOKEN}"
         while true; do
           printf "Checking runners...\\n"
           curl -sS --header "PRIVATE-TOKEN: $${PERSONAL_ACCESS_TOKEN}" "$${API_URL}/runners?per_page=100" | \

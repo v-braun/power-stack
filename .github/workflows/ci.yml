@@ -39,8 +39,6 @@ jobs:
 
           echo "generate passwort file"
           echo $GITLAB_ROOT_PASSWORD > admin_pwd.txt
-          echo $GITLAB_PERSONAL_ACCESS_TOKEN > gitlab_access_token.txt
-          echo $GITLAB_RUNNER_REG_TOKEN > runner_reg_token.txt
 
           echo "start stack"
           docker stack deploy ci --with-registry-auth -c docker-compose.yml
