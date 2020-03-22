@@ -1,4 +1,4 @@
-name: deploy the stack services
+name: deploy the CI stack services
 
 # this actions will be triggered via [actionspanel](https://www.actionspanel.app/)
 on: repository_dispatch
